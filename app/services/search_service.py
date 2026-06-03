@@ -11,7 +11,7 @@ collection = client.get_collection(
 
 def search_documents(
     query: str,
-    n_results: int = 5
+    n_results: int = 10
 ):
 
     results = collection.query(

@@ -1,12 +1,15 @@
 def chunk_text(
     text: str,
     page_number: int,
-    chunk_size: int = 1000
+    chunk_size: int = 1500,
+    overlap: int = 150
 ):
 
     chunks = []
 
-    for i in range(0, len(text), chunk_size):
+    step = chunk_size - overlap
+
+    for i in range(0, len(text), step):
 
         chunks.append(
             {

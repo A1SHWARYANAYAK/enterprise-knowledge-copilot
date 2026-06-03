@@ -1,3 +1,23 @@
-.venv/
+# Python
 __pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+venv/
+
+# ChromaDB
 data/chroma/
+
+# Uploaded files
+data/documents/
+
+# Mac
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env

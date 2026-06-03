@@ -17,6 +17,22 @@ embedding_model = SentenceTransformer(
 
 def store_chunks(chunks, filename):
 
+    # --------------------------------------------------
+    # Clear existing document from collection
+    # --------------------------------------------------
+
+    existing = collection.get()
+
+    if existing["ids"]:
+
+        collection.delete(
+            ids=existing["ids"]
+        )
+
+    # --------------------------------------------------
+    # Store new document
+    # --------------------------------------------------
+
     ids = []
     documents = []
     metadatas = []

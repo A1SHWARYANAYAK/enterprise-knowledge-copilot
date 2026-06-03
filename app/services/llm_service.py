@@ -7,31 +7,54 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 def generate_answer(question, context):
 
     prompt = f"""
-You are a helpful enterprise knowledge assistant.
+    You are a document question answering assistant.
 
-Answer ONLY using the provided context.
+    Answer completely using the provided context.
 
-If the answer is not found, say:
-"I could not find that information in the documents."
+    If the question asks for a summary,
+    provide a structured summary.
 
-Context:
-{context}
+    If the question asks for details,
+    provide all relevant details from the context.
 
-Question:
-{question}
+    Use bullet points when helpful.
 
-Answer:
-"""
+    Do not make up information.
+    Only use the provided context.
+
+    If multiple items are found, list ALL of them.
+
+    Use bullet points when appropriate.
+
+    If the answer is not found, reply:
+    "I could not find that information in the document."
+
+    Context:
+    {context}
+
+    Question:
+    {question}
+
+    Answer:
+    """
 
     response = requests.post(
         OLLAMA_URL,
         json={
-            "model": "qwen3:4b",
+            "model": "qwen2.5:3b",
             "prompt": prompt,
-            "stream": False
+            "stream": False,
+            "options": {
+                "temperature": 0,
+                "num_predict": 1024
+            }
         }
     )
 
     result = response.json()
+
+    print("\n========== RAW LLM OUTPUT ==========")
+    print(result)
+    print("====================================\n")
 
     return result["response"]

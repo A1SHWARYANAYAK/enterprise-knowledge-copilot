@@ -3,8 +3,13 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi import File
 from fastapi import UploadFile
+from fastapi import Request
+
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 from pydantic import BaseModel
+import time
 
 from app.services.pdf_service import extract_text_from_pdf
 from app.services.chunk_service import chunk_text
@@ -22,13 +27,34 @@ app = FastAPI(
 UPLOAD_DIR = Path("data/documents")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+templates = Jinja2Templates(
+    directory="app/templates"
+)
+
 
 class QuestionRequest(BaseModel):
     question: str
 
 
-@app.get("/")
-def root():
+# --------------------------------------------------
+# Home Page
+# --------------------------------------------------
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html"
+    )
+
+
+# --------------------------------------------------
+# API Status
+# --------------------------------------------------
+
+@app.get("/api")
+def api_root():
 
     return {
         "message": "Enterprise Knowledge Copilot Running"
@@ -43,25 +69,23 @@ def health():
     }
 
 
+# --------------------------------------------------
+# Upload PDF
+# --------------------------------------------------
+
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-
-    # Save uploaded file
 
     file_path = UPLOAD_DIR / file.filename
 
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
-    # Extract text from PDF
-
     pages = extract_text_from_pdf(
         str(file_path)
     )
 
     all_chunks = []
-
-    # Chunk pages
 
     for page in pages:
 
@@ -72,12 +96,15 @@ async def upload_pdf(file: UploadFile = File(...)):
 
         all_chunks.extend(chunks)
 
-    # Store chunks in ChromaDB
-
     store_chunks(
         all_chunks,
         file.filename
     )
+    # Delete uploaded PDF after indexing
+
+    import os
+
+    os.remove(file_path)
 
     return {
         "filename": file.filename,
@@ -86,6 +113,10 @@ async def upload_pdf(file: UploadFile = File(...)):
         "stored_in_vector_db": True
     }
 
+
+# --------------------------------------------------
+# Search
+# --------------------------------------------------
 
 @app.get("/search")
 def search(query: str):
@@ -100,26 +131,45 @@ def search(query: str):
     }
 
 
+# --------------------------------------------------
+# Ask Question (RAG)
+# --------------------------------------------------
+
 @app.post("/ask")
 def ask(request: QuestionRequest):
 
-    # Retrieve relevant chunks
+    search_start = time.time()
 
     results = search_documents(
         query=request.question
     )
+    
+    print("\n========== RETRIEVED CHUNKS ==========")
 
-    # Build context
+    for idx, result in enumerate(results):
+
+        print(f"\nChunk {idx + 1}")
+        print(result["text"])
+
+    print("\n======================================")
+
+    print(
+        f"Search took: {time.time() - search_start:.2f}s"
+    )
 
     context = "\n\n".join(
         [item["text"] for item in results]
     )
 
-    # Generate answer using Qwen
-   
+    llm_start = time.time()
+
     answer = generate_answer(
         question=request.question,
         context=context
+    )
+
+    print(
+        f"LLM took: {time.time() - llm_start:.2f}s"
     )
 
     return {
