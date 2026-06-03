@@ -1,4 +1,8 @@
-def chunk_text(text: str, chunk_size: int = 500):
+def chunk_text(
+    text: str,
+    page_number: int,
+    chunk_size: int = 1000
+):
 
     chunks = []
 
@@ -7,6 +11,7 @@ def chunk_text(text: str, chunk_size: int = 500):
         chunks.append(
             {
                 "chunk_id": len(chunks) + 1,
+                "page": page_number,
                 "text": text[i:i + chunk_size]
             }
         )
