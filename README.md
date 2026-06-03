@@ -133,22 +133,52 @@ Generated Answer
 ```text
 enterprise-knowledge-copilot/
 │
-├── templates/
-│   └── index.html
+├── app/
+│   ├── api/
+│   │
+│   ├── database/
+│   │
+│   ├── services/
+│   │   ├── pdf_service.py          # PDF text extraction
+│   │   ├── chunk_service.py        # Text chunking
+│   │   ├── vector_service.py       # Embeddings + ChromaDB storage
+│   │   ├── search_service.py       # Semantic retrieval
+│   │   └── llm_service.py          # Ollama/Qwen integration
+│   │
+│   ├── static/
+│   │
+│   ├── templates/
+│   │   └── index.html             # Frontend UI
+│   │
+│   ├── utils/
+│   │
+│   └── main.py                    # FastAPI application
 │
-├── uploads/
+├── screenshots/
+│   ├── upload-screen.png
+│   ├── qa-screen.png
+│   └── summary-screen.png
 │
-├── data/
-│   └── chroma/
+├── tests/
+│   ├── test_chroma.py
+│   └── test_embeddings.py
 │
-├── app.py
-├── llm.py
-├── vector_services.py
-├── search.py
-├── chunk.py
-├── pdf_parser.py
+├── cleanup.py                     # Utility script
+├── inspect_collection.py          # ChromaDB inspection tool
+├── reset_collection.py            # Reset vector database
+│
+├── README.md
 ├── requirements.txt
-└── README.md
+└── .gitignore
+```
+
+### Runtime Directories (Created Automatically)
+
+The following directories are generated when the application runs and are intentionally excluded from version control:
+
+```text
+data/chroma/        # ChromaDB vector database
+data/documents/     # Temporary uploaded documents
 ```
 
 ---
