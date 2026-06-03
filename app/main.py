@@ -116,11 +116,7 @@ def ask(request: QuestionRequest):
     )
 
     # Generate answer using Qwen
-    print("\n" + "=" * 80)
-    print("CONTEXT SENT TO LLM")
-    print("=" * 80)
-    print(context)
-    print("=" * 80)
+   
     answer = generate_answer(
         question=request.question,
         context=context
@@ -132,7 +128,8 @@ def ask(request: QuestionRequest):
         "sources": [
             {
                 "source": result["source"],
-                "page": result["page"]
+                "page": result["page"],
+                "snippet": result["snippet"]
             }
             for result in results
         ]

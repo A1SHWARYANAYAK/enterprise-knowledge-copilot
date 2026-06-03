@@ -11,7 +11,7 @@ collection = client.get_collection(
 
 def search_documents(
     query: str,
-    n_results: int = 7
+    n_results: int = 5
 ):
 
     results = collection.query(
@@ -29,10 +29,16 @@ def search_documents(
         if meta is None:
             continue
 
+        snippet = doc[:350]
+
+        if len(doc) > 200:
+            snippet += "..."
+
         formatted_results.append(
             {
                 "source": meta["source"],
                 "page": meta["page"],
+                "snippet": snippet,
                 "text": doc
             }
         )
